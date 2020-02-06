@@ -33,8 +33,7 @@ public class RayCaster : MonoBehaviour
 
                 if (Input.GetKeyDown("e"))
                 {
-                    Debug.Log("yee");
-                    //Dosmthg
+                    raycastedObject.GetComponent<AbstractInteract>().execute();
                 }
             }
         }
