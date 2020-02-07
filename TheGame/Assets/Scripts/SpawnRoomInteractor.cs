@@ -4,20 +4,29 @@ using UnityEngine;
 
 public class SpawnRoomInteractor : AbstractInteract
 {
-    [SerializeField] private GameObject room;
+    [SerializeField] private GameObject roomPrefab;
+    [SerializeField] private Transform exitPoint;
 
     private bool spawned = false;
+
+    private static int counter = 1;
 
     public override void execute()
     {
         if(!spawned)
         {
+            transform.localScale = Vector3.zero;
+            Debug.Log(gameObject);
+
             spawned = true;
             
-            Vector3 spawnPos = transform.parent.Find("ExitPoint").position;
-            spawnPos -= room.transform.Find("EntryPoint").localPosition;
-            Debug.Log(spawnPos + " :" + transform.parent.Find("ExitPoint").position + " " + room.transform.Find("EntryPoint").position);
-            GameObject roomSpawned = Instantiate(room, spawnPos, Quaternion.identity);
+            Vector3 spawnPos = exitPoint.position;
+
+            spawnPos += exitPoint.forward * roomPrefab.transform.Find("Points/EntryPoint").localPosition.magnitude;
+
+            GameObject roomSpawned = Instantiate(roomPrefab, spawnPos, exitPoint.rotation);
+            roomSpawned.name = "room" + counter;
+            counter++;
 
         }
         else
