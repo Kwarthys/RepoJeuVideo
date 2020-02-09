@@ -7,6 +7,7 @@ public class SpawnRoomInteractor : AbstractInteract
     private GameObject roomPrefab;
 
     [SerializeField] private Transform exitPoint;
+    [SerializeField] private LayerMask layerMaskInteract;
 
     private bool spawned = false;
 
@@ -14,7 +15,22 @@ public class SpawnRoomInteractor : AbstractInteract
 
     public void Start()
     {
-        roomPrefab = Resources.Load<GameObject>("QuadRoom");
+        RaycastHit hit;
+        Vector3 fwd = exitPoint.TransformDirection(Vector3.forward);
+
+        if (Physics.Raycast(transform.position, fwd, out hit, 1, layerMaskInteract.value))
+        {
+            Debug.Log(hit);
+            if (hit.collider.CompareTag("Object"))
+            {
+                hit.collider.gameObject.SetActive(false);
+                gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            roomPrefab = Resources.Load<GameObject>("QuadRoom");
+        }
     }
 
     public override void execute()
@@ -22,8 +38,6 @@ public class SpawnRoomInteractor : AbstractInteract
         if(!spawned)
         {
             gameObject.SetActive(false);
-            Debug.Log(gameObject);
-            Debug.Log(roomPrefab);
 
             spawned = true;
             
