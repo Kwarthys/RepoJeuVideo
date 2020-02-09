@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fffe418067fd2c54aacba5cc93b9d2ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomPrefab: {fileID: 6968237181758860406}
+  roomPrefab: {fileID: 0}
   exitPoint: {fileID: 6968237181836785714}
 --- !u!1 &893819080239785931
 GameObject:
@@ -247,7 +247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fffe418067fd2c54aacba5cc93b9d2ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomPrefab: {fileID: 6968237181758860406}
+  roomPrefab: {fileID: 0}
   exitPoint: {fileID: 6968237182853629947}
 --- !u!1 &2963356690760538402
 GameObject:
@@ -355,7 +355,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fffe418067fd2c54aacba5cc93b9d2ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomPrefab: {fileID: 6968237181758860406}
+  roomPrefab: {fileID: 0}
   exitPoint: {fileID: 6968237183152109490}
 --- !u!1 &6255004819106139266
 GameObject:

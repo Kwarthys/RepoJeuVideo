@@ -4,19 +4,26 @@ using UnityEngine;
 
 public class SpawnRoomInteractor : AbstractInteract
 {
-    [SerializeField] private GameObject roomPrefab;
+    private GameObject roomPrefab;
+
     [SerializeField] private Transform exitPoint;
 
     private bool spawned = false;
 
     private static int counter = 1;
 
+    public void Start()
+    {
+        roomPrefab = Resources.Load<GameObject>("QuadRoom");
+    }
+
     public override void execute()
     {
         if(!spawned)
         {
-            transform.localScale = Vector3.zero;
+            gameObject.SetActive(false);
             Debug.Log(gameObject);
+            Debug.Log(roomPrefab);
 
             spawned = true;
             
