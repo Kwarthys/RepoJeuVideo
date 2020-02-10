@@ -20,7 +20,6 @@ public class SpawnRoomInteractor : AbstractInteract
 
         if (Physics.Raycast(transform.position, fwd, out hit, 1, layerMaskInteract.value))
         {
-            Debug.Log(hit);
             if (hit.collider.CompareTag("Object"))
             {
                 hit.collider.gameObject.SetActive(false);
