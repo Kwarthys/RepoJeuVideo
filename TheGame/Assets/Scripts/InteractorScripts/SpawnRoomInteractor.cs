@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static CollisionDetector;
 
 public class SpawnRoomInteractor : AbstractInteract
 {
@@ -51,5 +52,17 @@ public class SpawnRoomInteractor : AbstractInteract
         {
             Debug.Log("Already spawned the room");
         }
+    }
+
+    public bool wouldItCollide()
+    {
+        bool collides = false;
+        CollisionSphereData[] ds = CollisionDetector.getSpheresFor(RessourceRoomName, exitPoint);
+        foreach(CollisionSphereData d in ds)
+        {
+            collides = collides || Physics.SphereCast(d.origin, d.radius, d.direction, out RaycastHit hit, d.maxDistance);
+            Debug.DrawRay(d.origin, d.direction, RessourceRoomName == "GreatRoom" ? Color.black : Color.white, 10);
+        }
+        return collides;
     }
 }

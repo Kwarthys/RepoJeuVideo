@@ -34,8 +34,13 @@ public class DoorDisplayCanvasInteractor : AbstractInteract
     private void setupChildSpawner(string name)
     {
         Transform child = transform.Find("Canvas").Find(name);
-        child.GetComponent<SpawnRoomInteractor>().exitPoint = exitPoint;
-        child.GetComponent<SpawnRoomInteractor>().cb = callback;
+        SpawnRoomInteractor childInteractor = child.GetComponent<SpawnRoomInteractor>();
+        childInteractor.exitPoint = exitPoint;
+        childInteractor.cb = callback;
+        bool collides = childInteractor.wouldItCollide();
+        //Debug.Log("COLLIDE ? " + collides);
+
+        child.gameObject.SetActive(!collides);
     }
 
     private void callback()
