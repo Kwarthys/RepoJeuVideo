@@ -5,49 +5,47 @@ using UnityEngine;
 public class SpawnRoomInteractor : AbstractInteract
 {
     private GameObject roomPrefab;
-
-    [SerializeField] private Transform exitPoint;
-    [SerializeField] private LayerMask layerMaskInteract;
-
+    public Transform exitPoint;
     private bool spawned = false;
+
+    public string RessourceRoomName;
 
     private static int counter = 1;
 
-    public void Start()
-    {
-        RaycastHit hit;
-        Vector3 fwd = exitPoint.TransformDirection(Vector3.forward);
+    public delegate void CallBack();
+    public CallBack cb;
 
-        if (Physics.Raycast(transform.position, fwd, out hit, 1, layerMaskInteract.value))
-        {
-            if (hit.collider.CompareTag("Object"))
-            {
-                hit.collider.gameObject.SetActive(false);
-                gameObject.SetActive(false);
-            }
-        }
-        else
-        {
-            roomPrefab = Resources.Load<GameObject>("QuadRoom");
-        }
+    public void Start()
+    { 
+        roomPrefab = Resources.Load<GameObject>(RessourceRoomName);
     }
 
     public override void execute()
     {
         if(!spawned)
         {
-            gameObject.SetActive(false);
+            spawned = true;            
 
-            spawned = true;
-            
-            Vector3 spawnPos = exitPoint.position;
+            Transform newRoomEntryPoint = roomPrefab.transform.Find("Points/EntryPoint");
 
-            spawnPos += exitPoint.forward * roomPrefab.transform.Find("Points/EntryPoint").localPosition.magnitude;
+            GameObject roomSpawned = Instantiate(roomPrefab, new Vector3(1000,1000,1000), Quaternion.LookRotation(exitPoint.forward, exitPoint.up) * Quaternion.Inverse(newRoomEntryPoint.rotation));
+            roomSpawned.name = "room" + counter++;
 
-            GameObject roomSpawned = Instantiate(roomPrefab, spawnPos, exitPoint.rotation);
-            roomSpawned.name = "room" + counter;
-            counter++;
+            newRoomEntryPoint = roomSpawned.transform.Find("Points/EntryPoint");
 
+            Vector3 worldPosExitPoint = exitPoint.position;
+            Vector3 worldPosEntryPoint = newRoomEntryPoint.position;
+
+            Vector3 spawnPos = worldPosExitPoint;
+            spawnPos -= worldPosEntryPoint;
+
+            roomSpawned.transform.position += spawnPos;
+
+
+            if(cb != null)
+            {
+                cb();
+            }
         }
         else
         {
