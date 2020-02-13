@@ -61,7 +61,7 @@ public class SpawnRoomInteractor : AbstractInteract
         foreach(CollisionSphereData d in ds)
         {
             collides = collides || Physics.SphereCast(d.origin, d.radius, d.direction, out RaycastHit hit, d.maxDistance);
-            Debug.DrawRay(d.origin, d.direction, RessourceRoomName == "GreatRoom" ? Color.black : Color.white, 10);
+            Debug.DrawLine(d.origin, d.direction * d.maxDistance + d.origin, RessourceRoomName == "QuadRoom" ? Color.black : Color.white, 10);
         }
         return collides;
     }

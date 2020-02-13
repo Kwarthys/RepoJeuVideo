@@ -28,6 +28,7 @@ public class CollisionDetector
                 break;
 
             case "GreatRoom":
+            case "Hangar":
                 d = new CollisionSphereData();
                 d.origin = usedExitPoint.position + usedExitPoint.forward * 4.5f * 3;
                 d.origin.y = 4;

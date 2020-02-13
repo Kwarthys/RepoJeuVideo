@@ -12,6 +12,8 @@ public class DoorDisplayCanvasInteractor : AbstractInteract
 
     private bool canvasShowed = false;
 
+    private List<SpawnRoomInteractor> children = new List<SpawnRoomInteractor>();
+
     public void Start()
     {
         Vector3 fwd = exitPoint.TransformDirection(Vector3.forward);
@@ -29,6 +31,7 @@ public class DoorDisplayCanvasInteractor : AbstractInteract
 
         setupChildSpawner("ImageSmallRoom");
         setupChildSpawner("ImageBigRoom");
+        setupChildSpawner("ImageHangar");
     }
 
     private void setupChildSpawner(string name)
@@ -37,10 +40,17 @@ public class DoorDisplayCanvasInteractor : AbstractInteract
         SpawnRoomInteractor childInteractor = child.GetComponent<SpawnRoomInteractor>();
         childInteractor.exitPoint = exitPoint;
         childInteractor.cb = callback;
-        bool collides = childInteractor.wouldItCollide();
-        //Debug.Log("COLLIDE ? " + collides);
 
-        child.gameObject.SetActive(!collides);
+        children.Add(childInteractor);
+    }
+
+    private void checkChildrenCollisions()
+    {
+        foreach(SpawnRoomInteractor child in children)
+        {
+            bool collides = child.wouldItCollide();
+            child.gameObject.SetActive(!collides);
+        }
     }
 
     private void callback()
@@ -52,5 +62,10 @@ public class DoorDisplayCanvasInteractor : AbstractInteract
     {
         canvasShowed = !canvasShowed;
         canvas.SetActive(canvasShowed);
+
+        if(canvasShowed)
+        {
+            checkChildrenCollisions();
+        }
     }
 }
