@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class DoorDisplayCanvasInteractor : AbstractInteract
 {
@@ -14,9 +15,12 @@ public class DoorDisplayCanvasInteractor : AbstractInteract
 
     private List<SpawnRoomInteractor> children = new List<SpawnRoomInteractor>();
 
+    private NavMeshSurface surface;
+
     public void Start()
     {
         Vector3 fwd = exitPoint.TransformDirection(Vector3.forward);
+        surface = GameObject.FindWithTag("NavMeshManager").GetComponent<NavMeshSurface>();
 
         if (Physics.Raycast(transform.position, fwd, out RaycastHit hit, 1, layerMaskInteract.value))
         {
@@ -24,6 +28,8 @@ public class DoorDisplayCanvasInteractor : AbstractInteract
             {
                 hit.collider.gameObject.SetActive(false);
                 gameObject.SetActive(false);
+
+                surface.BuildNavMesh();
             }
         }
         canvas = transform.Find("Canvas").gameObject;
@@ -56,6 +62,8 @@ public class DoorDisplayCanvasInteractor : AbstractInteract
     private void callback()
     {
         gameObject.SetActive(false);
+
+        surface.BuildNavMesh();
     }
 
     public override void execute()

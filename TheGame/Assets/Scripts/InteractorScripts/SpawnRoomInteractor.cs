@@ -17,7 +17,7 @@ public class SpawnRoomInteractor : AbstractInteract
     public CallBack cb;
 
     public void Start()
-    { 
+    {
         roomPrefab = Resources.Load<GameObject>(RessourceRoomName);
     }
 
@@ -41,7 +41,6 @@ public class SpawnRoomInteractor : AbstractInteract
             spawnPos -= worldPosEntryPoint;
 
             roomSpawned.transform.position += spawnPos;
-
 
             if(cb != null)
             {

@@ -29,6 +29,12 @@ public class RefineryBehaviour : MonoBehaviour
     {
         if(!loaded)
         {
+            rManager.postOrder(new Order(gameObject, RessourceManager.Ressources.RawIron));
+            loaded = true;
+        }
+        /*
+        if(!loaded)
+        {
             loaded = checkCondition();
             toggleActive(loaded);
         }
@@ -44,6 +50,7 @@ public class RefineryBehaviour : MonoBehaviour
                 toggleActive(loaded);
             }
         }
+        */
     }
 
     private bool checkCondition()
