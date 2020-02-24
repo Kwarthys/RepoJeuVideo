@@ -11,7 +11,6 @@ public class CrateBehavior : MonoBehaviour
     void Start()
     {
         manager = GameObject.FindWithTag("RessourceManager").GetComponent<RessourceManager>();
-        Debug.Log("registering");
         manager.notifyCrateSpawn(this);
     }
 }

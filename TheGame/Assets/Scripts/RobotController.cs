@@ -16,8 +16,7 @@ public class RobotController : MonoBehaviour
     private BOTSTATE state = BOTSTATE.idle;
 
     private Order order;
-    private bool busy = false;
-    public bool isBusy() { return busy; }
+    public bool isBusy() { return state!=BOTSTATE.idle; }
 
     public void Start()
     {
@@ -29,8 +28,6 @@ public class RobotController : MonoBehaviour
     public void setOrder(Order o)
     {
         order = o;
-        busy = true;
-        Debug.Log(o.crate);
         agent.SetDestination(o.crate.transform.position);
         state = BOTSTATE.toCrate;
     }
@@ -43,17 +40,22 @@ public class RobotController : MonoBehaviour
             if(agent.remainingDistance < 0.2f)
             {
                 //GRAB BOX
-                state = BOTSTATE.toModule;
+                order.crate.transform.SetParent(transform);
+                order.crate.transform.localPosition = new Vector3(0, 1f, -0.2f);
+                order.crate.transform.localRotation = Quaternion.identity;
                 agent.SetDestination(order.module.transform.position);
+                state = BOTSTATE.toModule;
             }
         }
         else if(state == BOTSTATE.toModule)
         {
-            if (agent.remainingDistance < 0.2f)
+            if (agent.remainingDistance < 0.2f && !agent.pathPending)
             {
                 //DROP BOX
+                Destroy(order.crate.gameObject);
+
                 state = BOTSTATE.idle;
-                busy = false;
+                order.module.notifyDelivery();
                 //GO TO BASE 
                 agent.SetDestination(Vector3.zero);
             }

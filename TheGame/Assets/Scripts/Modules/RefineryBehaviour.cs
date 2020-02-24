@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 public class RefineryBehaviour : MonoBehaviour
 {
-    public int timeToProcess;
-    private int processIndex = 0;
-
     [SerializeField]
     private Slider slider;
     [SerializeField]
@@ -15,47 +12,20 @@ public class RefineryBehaviour : MonoBehaviour
     [SerializeField]
     private GameObject smoke;
 
-    private bool loaded = false;
-
-    private RessourceManager rManager;
+    private RessourceProcessor processor;
 
     void Start()
     {
-        rManager = GameObject.FindWithTag("RessourceManager").GetComponent<RessourceManager>();
+        processor = transform.GetComponent<RessourceProcessor>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(!loaded)
-        {
-            rManager.postOrder(new Order(gameObject, RessourceManager.Ressources.RawIron));
-            loaded = true;
-        }
-        /*
-        if(!loaded)
-        {
-            loaded = checkCondition();
-            toggleActive(loaded);
-        }
-        else
-        {
-            slider.value = processIndex * 1.0f / timeToProcess;
-            if(++processIndex >= timeToProcess)
-            {
-                rManager.giveRessources(RessourceManager.Ressources.Iron, 1);
-                processIndex = 0;
+        float p = processor.getCompletion();
 
-                loaded = checkCondition();
-                toggleActive(loaded);
-            }
-        }
-        */
-    }
-
-    private bool checkCondition()
-    {
-        return rManager.takeRessource(RessourceManager.Ressources.RawIron, 2);
+        toggleActive(p != 0);
+        slider.value = p;
     }
 
     private void toggleActive(bool command)

@@ -669,6 +669,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3634697222348187671}
   - component: {fileID: 5868296048389616669}
+  - component: {fileID: -3355510457603928231}
   m_Layer: 0
   m_Name: Reffinery
   m_TagString: Untagged
@@ -703,10 +704,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb6e10cc2bcc876409009f843f66c53e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeToProcess: 180
   slider: {fileID: 5369314687985149309}
   canvas: {fileID: 8600112747940857657}
   smoke: {fileID: 8440138948747081099}
+--- !u!114 &-3355510457603928231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7919701226749798749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3847dd9153b6b5945bcbcb77f6e4120f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  input: 0
+  nbInput: 2
+  output: 1
+  nbOutput: 1
+  timeToProcess: 600
 --- !u!1 &8440138948747081099
 GameObject:
   m_ObjectHideFlags: 0

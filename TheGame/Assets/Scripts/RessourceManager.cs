@@ -7,13 +7,13 @@ using Random = UnityEngine.Random;
 
 public class Order
 {
-    public GameObject module;
+    public RessourceProcessor module;
     public RessourceManager.Ressources r;
     public CrateBehavior crate;
 
     public bool running = false;
 
-    public Order(GameObject module, RessourceManager.Ressources r)
+    public Order(RessourceProcessor module, RessourceManager.Ressources r)
     {
         this.module = module;
         this.r = r;
@@ -40,12 +40,10 @@ public class RessourceManager : MonoBehaviour
         {
             amounts[r] = ressourceAmount;
         }
-        Debug.Log("dicoSetup");
     }
 
     public void postOrder(Order o)
     {
-        Debug.Log("order posted");
         orders.Add(o);
     }
 
@@ -78,11 +76,17 @@ public class RessourceManager : MonoBehaviour
                 if(readyBots.Count > 0)
                 {
                     //GET A CRATE
-                    o.crate = getCrateOf(o.r);
-                    //ASSIGN ORDER TO readyBots[0]
-                    readyBots[0].setOrder(o);
-                    o.running = true;
-                    orders.Remove(o);
+                    CrateBehavior c = getCrateOf(o.r);
+                    if(c != null)
+                    {
+                        o.crate = c;
+                        crates.Remove(c);
+                        --amounts[c.r];
+                        //ASSIGN ORDER TO readyBots[0]
+                        readyBots[0].setOrder(o);
+                        o.running = true;
+                        orders.Remove(o);
+                    }
                 }
             }
         }
@@ -97,7 +101,6 @@ public class RessourceManager : MonoBehaviour
                 return c;
             }
         }
-        Debug.Log("can't find a crate");
         return null;
     }
 
