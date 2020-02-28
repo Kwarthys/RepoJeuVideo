@@ -7,15 +7,16 @@ using Random = UnityEngine.Random;
 
 public class Order
 {
-    public RessourceProcessor module;
+    public RessourceReceiver deliveryModule;
+    public RessourceReceiver pickUpModule;
     public RessourceManager.Ressources r;
     public CrateBehavior crate;
 
     public bool running = false;
 
-    public Order(RessourceProcessor module, RessourceManager.Ressources r)
+    public Order(RessourceReceiver module, RessourceManager.Ressources r)
     {
-        this.module = module;
+        this.deliveryModule = module;
         this.r = r;
     }
 }
@@ -23,6 +24,8 @@ public class Order
 public class RessourceManager : MonoBehaviour
 {
     public enum Ressources {RawIron, Iron};
+
+    public GameObject cratePrefab;
 
     public Text text;
 
@@ -33,6 +36,7 @@ public class RessourceManager : MonoBehaviour
     private List<CrateBehavior> crates = new List<CrateBehavior>();
     private List<Order> orders = new List<Order>();
     private List<RobotController> bots = new List<RobotController>();
+    private List<ContainerController> containers = new List<ContainerController>();
 
     private void Start()
     {
@@ -40,6 +44,15 @@ public class RessourceManager : MonoBehaviour
         {
             amounts[r] = ressourceAmount;
         }
+    }
+
+    public void postPushResources(Ressources r, RessourceReceiver pickUpModule)
+    {
+        Order o = new Order(null, r);
+        o.pickUpModule = pickUpModule;
+        orders.Add(o);
+
+        ++amounts[r];
     }
 
     public void postOrder(Order o)
@@ -69,27 +82,89 @@ public class RessourceManager : MonoBehaviour
             int rand = (int)Random.Range(0, orders.Count-1);
             Order o = orders[rand];
 
-            if(amounts[o.r] > 0)
+            if(o.deliveryModule == null)
+            {
+                bool foundAnOrder = false;
+                //IT IS A PUSH, we must find an order for that resource, or a container.
+                for(int i = 0; i < orders.Count && !foundAnOrder; ++i)
+                {
+                    if(orders[i].r == o.r && orders[i].deliveryModule != null) // if order is about the same resource AND not a push
+                    {
+                        o.deliveryModule = orders[i].deliveryModule;            //Merging the orders and deleting one.
+                        orders.Remove(orders[i]);
+                        foundAnOrder = true;
+                    }
+                }
+
+                if(!foundAnOrder)
+                {
+                    //We must find a container
+                    ContainerController cc = getRandomAvailableContainer();
+                    if(cc != null)
+                    {
+                        o.deliveryModule = cc;
+                        cc.notifyIncomingDelivry();
+                    }
+                    else
+                    {
+                        return; //Can't find any order or containers, can't do anything.
+                    }
+                }
+            }
+
+            if (amounts[o.r] > 0)
             {
                 List<RobotController> readyBots = getAvailableBots();
 
                 if(readyBots.Count > 0)
                 {
-                    //GET A CRATE
-                    CrateBehavior c = getCrateOf(o.r);
-                    if(c != null)
+                    if(o.pickUpModule != null)
                     {
-                        o.crate = c;
-                        crates.Remove(c);
-                        --amounts[c.r];
-                        //ASSIGN ORDER TO readyBots[0]
-                        readyBots[0].setOrder(o);
-                        o.running = true;
+                        //ITS A PUSH
+                        getRandomAvailableBot().setOrder(o);
                         orders.Remove(o);
+                    }
+                    else
+                    {
+                        //GET A CRATE
+                        CrateBehavior c = getCrateOf(o.r);
+                        if (c != null)
+                        {
+                            o.crate = c;
+                            crates.Remove(c);
+                            --amounts[c.r];
+                            //ASSIGN ORDER
+                            getRandomAvailableBot().setOrder(o);
+                            orders.Remove(o);
+                        }
+                        else
+                        {
+                            ContainerController cc = getContainerWith(o.r);
+                            if (cc != null)
+                            {
+                                o.pickUpModule = cc;
+                                --amounts[c.r];
+                                //ASSIGN ORDER
+                                getRandomAvailableBot().setOrder(o);
+                                orders.Remove(o);
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+
+    private ContainerController getContainerWith(Ressources r)
+    {
+        foreach (ContainerController cc in containers)
+        {
+            if (cc.hasResource(r))
+            {
+                return cc;
+            }
+        }
+        return null;
     }
 
     private CrateBehavior getCrateOf(Ressources r)
@@ -101,6 +176,7 @@ public class RessourceManager : MonoBehaviour
                 return c;
             }
         }
+
         return null;
     }
 
@@ -108,15 +184,53 @@ public class RessourceManager : MonoBehaviour
     {
         List<RobotController> readyBots = new List<RobotController>();
 
-        foreach(RobotController bot in bots)
+        foreach (RobotController bot in bots)
         {
-            if(!bot.isBusy())
+            if (!bot.isBusy())
             {
                 readyBots.Add(bot);
             }
         }
 
         return readyBots;
+    }
+
+    private RobotController getRandomAvailableBot()
+    {
+        List<RobotController> availableBots = getAvailableBots();
+        if (availableBots.Count == 0)
+        {
+            return null;
+        }
+
+        return availableBots[Random.Range(0, availableBots.Count - 1)];
+    }
+
+    private ContainerController getRandomAvailableContainer()
+    {
+        List<ContainerController> availableContainers = getAvailableContainers();
+        if (availableContainers.Count == 0)
+        {
+            return null;
+        }
+
+        return availableContainers[Random.Range(0, availableContainers.Count - 1)];
+    }
+
+
+    private List<ContainerController> getAvailableContainers()
+    {
+        List<ContainerController> availableContainers = new List<ContainerController>();
+
+        foreach (ContainerController c in containers)
+        {
+            if (!c.isFull())
+            {
+                availableContainers.Add(c);
+            }
+        }
+
+        return availableContainers;
     }
 
     public int getAmountOf(Ressources r)
@@ -153,5 +267,10 @@ public class RessourceManager : MonoBehaviour
     public void registerBot(RobotController bot)
     {
         bots.Add(bot);
+    }
+
+    public void registerContainer(ContainerController container)
+    {
+        containers.Add(container);
     }
 }

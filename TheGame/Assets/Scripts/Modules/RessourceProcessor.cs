@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RessourceProcessor : MonoBehaviour
+public class RessourceProcessor : RessourceReceiver
 {
-    private enum STATE { idle, processing, waiting};
+    private enum STATE { idle, processing, waitingDelivery, waitingPickUp};
     public RessourceManager.Ressources input;
     public int nbInput;
     public RessourceManager.Ressources output;
@@ -21,8 +21,9 @@ public class RessourceProcessor : MonoBehaviour
     private RessourceManager rManager;
 
     private int loadedInputR = 0;
+    private int loadOutput = 0;
 
-    public void notifyDelivery()
+    public override void notifyDelivery(CrateBehavior crate)
     {
         loadedInputR++;
     }
@@ -43,25 +44,42 @@ public class RessourceProcessor : MonoBehaviour
                 {
                     rManager.postOrder(new Order(this, input));
                 }
-                state = STATE.waiting;
+                state = STATE.waitingDelivery;
                 break;
 
             case STATE.processing:
                 if(processIndex++ >= timeToProcess)
                 {
-                    state = STATE.idle;
-                    rManager.giveRessources(output, nbOutput); //CHANGE THAT TO CRATE SPAWN
+                    state = STATE.waitingPickUp;
+                    //rManager.giveRessources(output, nbOutput); //CHANGE THAT TO CRATE SPAWN
+                    for(int i = 0; i < nbOutput; ++i)
+                    {
+                        rManager.postPushResources(output, this);
+                    }
+                    loadOutput = nbOutput;
                     processIndex = 0;
                 }
                 break;
 
-            case STATE.waiting:
+            case STATE.waitingDelivery:
                 if(loadedInputR == nbInput)
                 {
                     loadedInputR = 0;
                     state = STATE.processing;
                 }
                 break;
+
+            case STATE.waitingPickUp:
+                if(loadOutput == 0)
+                {
+                    state = STATE.idle;
+                }
+                break;
         }
+    }
+
+    public override void notifyPickUp()
+    {
+        --loadOutput;
     }
 }

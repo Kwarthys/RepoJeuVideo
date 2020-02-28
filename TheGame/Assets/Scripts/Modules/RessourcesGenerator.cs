@@ -6,7 +6,7 @@ public class RessourcesGenerator : MonoBehaviour
 {
     private RessourceManager rManager;
 
-    public GameObject cratePrefab;
+    private GameObject cratePrefab;
     public RessourceManager.Ressources generatedResource;
     public int timeToProcess;
     public int generatedAmount;
@@ -18,7 +18,7 @@ public class RessourcesGenerator : MonoBehaviour
     void Start()
     {
         rManager = GameObject.FindWithTag("RessourceManager").GetComponent<RessourceManager>();
-        //cratePrefab.GetComponent<CrateBehavior>().r = generatedResource;
+        cratePrefab = rManager.cratePrefab;
     }
 
 
@@ -44,6 +44,6 @@ public class RessourcesGenerator : MonoBehaviour
     {
         GameObject g = Instantiate(cratePrefab, holderAndRef.position + offset, Quaternion.identity, holderAndRef);
         g.GetComponent<CrateBehavior>().r = generatedResource;
-        Debug.Log("wanted to spawn " + generatedResource);
+        //Debug.Log("wanted to spawn " + generatedResource);
     }
 }

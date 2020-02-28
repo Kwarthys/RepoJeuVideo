@@ -6,16 +6,13 @@ public class SpawnModuleInteractor : AbstractInteract
 {
     public GameObject modulePrefab;
 
-    private Transform spawnPoint;
+    public GameObject spawnerRoot;
 
-    public void Start()
-    {
-        spawnPoint = transform.Find("SpawnPoint");
-    }
+    public Transform spawnPoint;
 
     public override void execute()
     {
-        gameObject.SetActive(false);
+        spawnerRoot.SetActive(false);
 
         Instantiate(modulePrefab, spawnPoint.position, spawnPoint.rotation);
     }
