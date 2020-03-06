@@ -63,7 +63,7 @@ public class RessourceProcessor : RessourceReceiver
                 {
                     rManager.postOrder(new Order(this, recipe.input));
                 }
-                Debug.Log(transform.name + " posted " + recipe.input + " order(s).");
+                //Debug.Log(transform.name + " posted " + recipe.input + " order(s).");
                 state = STATE.waitingDelivery;
                 break;
 
@@ -71,7 +71,6 @@ public class RessourceProcessor : RessourceReceiver
                 if(processIndex++ >= recipe.rawTimeToProcess)
                 {
                     state = STATE.waitingPickUp;
-                    //rManager.giveRessources(output, nbOutput); //CHANGE THAT TO CRATE SPAWN
                     for(int i = 0; i < recipe.nbOutput; ++i)
                     {
                         rManager.postPushResources(recipe.output, this);
@@ -98,7 +97,7 @@ public class RessourceProcessor : RessourceReceiver
         }
     }
 
-    public override void notifyPickUp()
+    public override void notifyPickUp(RessourceManager.Ressources r)
     {
         --loadOutput;
     }

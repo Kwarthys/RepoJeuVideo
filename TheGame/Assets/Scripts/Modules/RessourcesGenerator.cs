@@ -32,7 +32,7 @@ public class RessourcesGenerator : MonoBehaviour
                 Vector3 offset = new Vector3(0, 0.75f, 0);
                 for(int i = 0; i < generatedAmount; ++i)
                 {
-                    spawnCrate(offset);
+                    rManager.postPushCrate(spawnCrate(offset));
                     offset += 1.2f * holderAndRef.forward;
                 }
                 processIndex = 0;
@@ -40,10 +40,12 @@ public class RessourcesGenerator : MonoBehaviour
         }
     }
 
-    private void spawnCrate(Vector3 offset)
+    private CrateBehavior spawnCrate(Vector3 offset)
     {
         GameObject g = Instantiate(cratePrefab, holderAndRef.position + offset, Quaternion.identity, holderAndRef);
-        g.GetComponent<CrateBehavior>().r = generatedResource;
-        //Debug.Log("wanted to spawn " + generatedResource);
+        CrateBehavior c = g.GetComponent<CrateBehavior>();
+        c.setType(generatedResource);
+
+        return c;
     }
 }

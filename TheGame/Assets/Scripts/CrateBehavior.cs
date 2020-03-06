@@ -4,14 +4,25 @@ using UnityEngine;
 
 public class CrateBehavior : MonoBehaviour
 {
-    private RessourceManager manager;
-
     public RessourceManager.Ressources r;
 
-    void Start()
+    public void setType(RessourceManager.Ressources r)
     {
-        manager = GameObject.FindWithTag("RessourceManager").GetComponent<RessourceManager>();
-        manager.notifyCrateSpawn(this);
-        //Debug.Log("notified " + r);
+        this.r = r;
+
+        Color c = Color.red;
+
+        switch(r)
+        {
+            case RessourceManager.Ressources.Iron:
+                c = Color.black;
+                break;
+
+            case RessourceManager.Ressources.RawIron:
+                c = Color.grey;
+                break;
+        }
+
+        GetComponent<Renderer>().material.color = c;
     }
 }

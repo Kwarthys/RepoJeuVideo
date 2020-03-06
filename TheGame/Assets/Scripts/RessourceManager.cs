@@ -7,17 +7,21 @@ using Random = UnityEngine.Random;
 
 public class Order
 {
+    private static int idcounter = 0;
+
     public RessourceReceiver deliveryModule;
     public RessourceReceiver pickUpModule;
     public RessourceManager.Ressources r;
     public CrateBehavior crate;
-
+    public int id;
     public bool running = false;
 
     public Order(RessourceReceiver module, RessourceManager.Ressources r)
     {
         this.deliveryModule = module;
         this.r = r;
+
+        id = idcounter++;
     }
 }
 
@@ -57,6 +61,15 @@ public class RessourceManager : MonoBehaviour
         ++amounts[r];
     }
 
+    public void postPushCrate(CrateBehavior c)
+    {
+        Order o = new Order(null, c.r);
+        o.crate = c;
+        orders.Add(o);
+
+        ++amounts[o.r];
+    }
+
     public void postOrder(Order o)
     {
         orders.Add(o);
@@ -88,15 +101,17 @@ public class RessourceManager : MonoBehaviour
             {
                 bool foundAnOrder = false;
                 //IT IS A PUSH, we must find an order for that resource, or a container.
-                for(int i = 0; i < orders.Count && !foundAnOrder; ++i)
+                for (int i = 0; i < orders.Count && !foundAnOrder; ++i)
                 {
-                    if(orders[i].r == o.r && orders[i].deliveryModule != null) // if order is about the same resource AND not a push
+                    if (orders[i].r == o.r && orders[i].deliveryModule != null && orders[i].crate == null) // if order is about the same resource AND not a push of crate
                     {
+                        //Debug.Log("Merging orders " + o.id + " and " + orders[i].id);
                         o.deliveryModule = orders[i].deliveryModule;            //Merging the orders and deleting one.
                         orders.Remove(orders[i]);
                         foundAnOrder = true;
                     }
                 }
+                
 
                 if(!foundAnOrder)
                 {
@@ -104,6 +119,7 @@ public class RessourceManager : MonoBehaviour
                     ContainerController cc = getRandomAvailableContainer();
                     if(cc != null)
                     {
+                        //Debug.Log("order" + o.id + " incontainer");
                         o.deliveryModule = cc;
                         cc.notifyIncomingDelivry();
                     }
@@ -120,7 +136,7 @@ public class RessourceManager : MonoBehaviour
 
                 if(readyBots.Count > 0)
                 {
-                    if(o.pickUpModule != null)
+                    if(o.pickUpModule != null || o.crate != null)
                     {
                         //ITS A PUSH
                         getRandomAvailableBot().setOrder(o);
@@ -132,6 +148,7 @@ public class RessourceManager : MonoBehaviour
                         CrateBehavior c = getCrateOf(o.r);
                         if (c != null)
                         {
+                            //Debug.Log("Assigning crate " + c.GetInstanceID() + " to order" + o.id + " ");
                             o.crate = c;
                             crates.Remove(c);
                             --amounts[c.r];
@@ -145,7 +162,8 @@ public class RessourceManager : MonoBehaviour
                             if (cc != null)
                             {
                                 o.pickUpModule = cc;
-                                --amounts[c.r];
+                                cc.bookCrate(o.r);
+                                --amounts[o.r];
                                 //ASSIGN ORDER
                                 getRandomAvailableBot().setOrder(o);
                                 orders.Remove(o);
@@ -268,14 +286,6 @@ public class RessourceManager : MonoBehaviour
     {
         amounts[r] += amount;
         //Debug.Log("Received " + amount + " " + r);
-    }
-
-
-
-    public void notifyCrateSpawn(CrateBehavior crate)
-    {
-        amounts[crate.r] += 1;
-        crates.Add(crate);
     }
 
     public void registerBot(RobotController bot)

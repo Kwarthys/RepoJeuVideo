@@ -5,5 +5,5 @@ using UnityEngine;
 public abstract class RessourceReceiver : MonoBehaviour
 {
     public abstract void notifyDelivery(CrateBehavior crate);
-    public abstract void notifyPickUp();
+    public abstract void notifyPickUp(RessourceManager.Ressources r);
 }

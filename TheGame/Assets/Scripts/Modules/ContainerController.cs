@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ public class ContainerController : RessourceReceiver
     private int incomingDeliveries = 0;
 
     private Dictionary<RessourceManager.Ressources, int> amounts = new Dictionary<RessourceManager.Ressources, int>();
+    private Dictionary<RessourceManager.Ressources, int> bookedCrates = new Dictionary<RessourceManager.Ressources, int>();
 
     private RessourceManager rManager;
     private void Start()
@@ -45,6 +47,7 @@ public class ContainerController : RessourceReceiver
     {
         if(amounts.ContainsKey(r))
         {
+            int amount = amounts[r] - (bookedCrates.ContainsKey(r) ? bookedCrates[r] : 0);
             return amounts[r] != 0;
         }
 
@@ -54,6 +57,7 @@ public class ContainerController : RessourceReceiver
     public void takeACrate(RessourceManager.Ressources r)
     {
         --amounts[r];
+        --bookedCrates[r];
     }
 
     public void notifyIncomingDelivry()
@@ -72,7 +76,20 @@ public class ContainerController : RessourceReceiver
         return a >= containerSpace;
     }
 
-    public override void notifyPickUp()
+    public override void notifyPickUp(RessourceManager.Ressources r)
     {
+        takeACrate(r);
+    }
+
+    internal void bookCrate(RessourceManager.Ressources r)
+    {
+        if(bookedCrates.ContainsKey(r))
+        {
+            ++bookedCrates[r];
+        }
+        else
+        {
+            bookedCrates.Add(r, 1);
+        }
     }
 }
