@@ -24,7 +24,7 @@ public class RefineryBehaviour : MonoBehaviour
     {
         float p = processor.getCompletion();
 
-        toggleActive(p != 0);
+        toggleActive(p > 0);
         slider.value = p;
     }
 

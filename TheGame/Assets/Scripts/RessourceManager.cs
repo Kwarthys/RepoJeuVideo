@@ -33,6 +33,8 @@ public class RessourceManager : MonoBehaviour
 
     public int ressourceAmount = 10;
 
+    private bool debug = false;
+
     private List<CrateBehavior> crates = new List<CrateBehavior>();
     private List<Order> orders = new List<Order>();
     private List<RobotController> bots = new List<RobotController>();
@@ -79,7 +81,7 @@ public class RessourceManager : MonoBehaviour
     {
         if(orders.Count > 0)
         {
-            int rand = (int)Random.Range(0, orders.Count-1);
+            int rand = (int)Random.Range(0, orders.Count);
             Order o = orders[rand];
 
             if(o.deliveryModule == null)
@@ -151,7 +153,19 @@ public class RessourceManager : MonoBehaviour
                         }
                     }
                 }
+                else if (debug)
+                {
+                    Debug.Log("Not enough bots for " + o.r + " order.");
+                }
             }
+            else if(debug)
+            {
+                Debug.Log("Not enough resrouces for " + o.r + " order.");
+            }
+        }
+        else if (debug)
+        {
+            Debug.Log("No order.");
         }
     }
 

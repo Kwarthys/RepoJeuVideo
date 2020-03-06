@@ -5,16 +5,19 @@ using UnityEngine;
 public class RessourceProcessor : RessourceReceiver
 {
     private enum STATE { idle, processing, waitingDelivery, waitingPickUp};
-    public RessourceManager.Ressources input;
-    public int nbInput;
-    public RessourceManager.Ressources output;
-    public int nbOutput;
-    public int timeToProcess;
+
+    private Recipe recipe;
+    private Recipe switchingRecipe;
 
     private STATE state = STATE.idle;
 
     private int processIndex = 0;
-    public float getCompletion() { return processIndex * 1.0f / timeToProcess; }
+    public float getCompletion()
+    {
+        if (recipe == null)
+            return -1;
+        return processIndex * 1.0f / recipe.rawTimeToProcess;
+    }
 
     private bool proccessing = false;
 
@@ -22,6 +25,8 @@ public class RessourceProcessor : RessourceReceiver
 
     private int loadedInputR = 0;
     private int loadOutput = 0;
+
+    private CanvasToogler ct;
 
     public override void notifyDelivery(CrateBehavior crate)
     {
@@ -31,38 +36,53 @@ public class RessourceProcessor : RessourceReceiver
     void Start()
     {
         rManager = GameObject.FindWithTag("RessourceManager").GetComponent<RessourceManager>();
+        ct = GetComponent<CanvasToogler>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        switch(state)
+
+        if(state == STATE.idle && switchingRecipe != null)
+        {
+            recipe = switchingRecipe;
+            switchingRecipe = null;
+        }
+
+        if (recipe == null)
+        {
+            ct.show();
+            return;
+        }
+
+        switch (state)
         {
             case STATE.idle:
                 //MAKE ORDERS
-                for(int i = 0; i < nbInput; ++i)
+                for(int i = 0; i < recipe.nbInput; ++i)
                 {
-                    rManager.postOrder(new Order(this, input));
+                    rManager.postOrder(new Order(this, recipe.input));
                 }
+                Debug.Log(transform.name + " posted " + recipe.input + " order(s).");
                 state = STATE.waitingDelivery;
                 break;
 
             case STATE.processing:
-                if(processIndex++ >= timeToProcess)
+                if(processIndex++ >= recipe.rawTimeToProcess)
                 {
                     state = STATE.waitingPickUp;
                     //rManager.giveRessources(output, nbOutput); //CHANGE THAT TO CRATE SPAWN
-                    for(int i = 0; i < nbOutput; ++i)
+                    for(int i = 0; i < recipe.nbOutput; ++i)
                     {
-                        rManager.postPushResources(output, this);
+                        rManager.postPushResources(recipe.output, this);
                     }
-                    loadOutput = nbOutput;
+                    loadOutput = recipe.nbOutput;
                     processIndex = 0;
                 }
                 break;
 
             case STATE.waitingDelivery:
-                if(loadedInputR == nbInput)
+                if(loadedInputR == recipe.nbInput)
                 {
                     loadedInputR = 0;
                     state = STATE.processing;
@@ -81,5 +101,11 @@ public class RessourceProcessor : RessourceReceiver
     public override void notifyPickUp()
     {
         --loadOutput;
+    }
+
+    public void setRecipe(Recipe r)
+    {
+        this.switchingRecipe = r;
+        ct.hide();
     }
 }
